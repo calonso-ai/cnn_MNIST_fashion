@@ -159,3 +159,42 @@ def create_mini_vgg ():
     model.add (Dense (10, activation = 'softmax'))
     
     return model
+
+#For compilation we will use:
+#keras.losses.categorical_crossentropy as a function of loss
+#keras.optimizers.Adadelta () as optimizacor
+#The metric to optimize will be the accuracy
+#To train the model we will use a batch_size = 128, epochs = 12 and the test set to validate.
+
+#First, we create the mini-vgg model through the create_mini_vgg function defined above
+model_vgg = create_mini_vgg ()
+#Adadelta optimizer is defined. It is recommended to leave the default parameters in this optimizer.
+sgd = optimizers.Adadelta (learning_rate = 1.0, rho = 0.95)
+#For the compilation of the model the optimizer defined in the previous line and the loss function will be used
+#categorical_crossentropy.
+model_vgg.compile (loss = 'categorical_crossentropy', optimizer = sgd, metrics = ['accuracy'])
+
+# Next, model is trained using the test set as a validation set
+hist_model_vgg = model_vgg.fit (x_train, y_train, validation_data = (x_test, y_test), epochs = 12, batch_size = 128)
+
+#Representation of train and test set accuracy
+plt.title('Precisión Mini-VGG')
+plt.plot(hist_model_vgg.history['accuracy'], color='blue', label='train')
+plt.plot(hist_model_vgg.history['val_accuracy'], color='orange', label='test')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.show()
+
+#Representation of train and test set loss function
+plt.title('Loss Mini-VGG')
+plt.plot(hist_model_vgg.history['loss'], color='blue', label='train')
+plt.plot(hist_model_vgg.history['val_loss'], color='orange', label='test')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.show()
+
+#The model is evaluated using test set.
+_, acc_vgg = model_vgg.evaluate(x_test, y_test, verbose=0)
+print('%.3f' % (acc_vgg * 100.0))
+
+#We use the obtained model to predict the first four dataset images.
+print(model.predict(x_test[:4]))
+y_test[:4]
